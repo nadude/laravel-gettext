@@ -1,7 +1,7 @@
 {
     "name": "nadude/laravel-gettext",
-    "description": "Adds localization support to laravel applications in an easy way using Poedit and GNU gettext.",
-    "homepage": "https://github.com/xinax/laravel-gettext",
+    "description": "Adds localization support to laravel 9 applications in an easy way using Poedit and GNU gettext.",
+    "homepage": "https://github.com/nadude/laravel-gettext",
     "keywords": [
         "gettext",
         "localization",
@@ -14,20 +14,24 @@
         {
             "name": "Nicolás Daniel Palumbo",
             "email": "n@xinax.net"
+        },
+        {
+            "name": "Mina Amir",
+            "email": "minaamirsobhyamin@gmail.com"
         }
     ],
     "support": {
-        "issues": "https://github.com/xinax/laravel-gettext/issues"
+        "issues": "https://github.com/nadude/laravel-gettext/issues"
     },
     "require": {
-        "php": ">=5.6.0",
-        "laravel/framework": "5.*"
+        "php": ">=8.0",
+        "laravel/framework": "^11.41"
     },
     "require-dev": {
         "mockery/mockery": "dev-master",
-        "phpunit/phpunit": "~4.0",
-        "squizlabs/php_codesniffer" : "1.5.*",
-        "laravel/laravel": "5.*"
+        "phpunit/phpunit": "^9.0",
+        "squizlabs/php_codesniffer" : "^3.0",
+        "laravel/laravel": "^11.41"
     },
     "autoload": {
         "psr-0": {
@@ -37,5 +41,15 @@
             "src/Xinax/LaravelGettext/Support/helpers.php"
         ]
     },
-    "minimum-stability": "stable"
+    "minimum-stability": "stable",
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Xinax\\LaravelGettext\\LaravelGettextServiceProvider"
+            ],
+            "aliases": {
+                "LaravelGettext": "Xinax\\LaravelGettext\\Facades\\LaravelGettext"
+            }
+        }
+    }
 }

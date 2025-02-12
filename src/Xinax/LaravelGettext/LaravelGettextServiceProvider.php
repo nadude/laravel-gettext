@@ -9,7 +9,6 @@ use Illuminate\Support\ServiceProvider;
  *
  * Class LaravelGettextServiceProvider
  * @package Xinax\LaravelGettext
- *
  */
 class LaravelGettextServiceProvider extends ServiceProvider
 {
@@ -28,15 +27,14 @@ class LaravelGettextServiceProvider extends ServiceProvider
     public function boot()
     {
         $this->publishes([
-            __DIR__ . '/../../config/config.php' => config_path('laravel-gettext.php')
+            __DIR__ . '/../../config/config.php' => config_path('laravel-gettext.php'),
         ], 'config');
-
     }
 
     /**
      * Register the service provider.
      *
-     * @return mixed
+     * @return void
      */
     public function register()
     {
@@ -48,56 +46,43 @@ class LaravelGettextServiceProvider extends ServiceProvider
         );
 
         // Main class register
-        $this->app['laravel-gettext'] = $this->app->share(function ($app) use ($configuration) {
-
+        $this->app->singleton('laravel-gettext', function ($app) use ($configuration) {
             $fileSystem = new FileSystem($configuration->get(), app_path(), storage_path());
 
-            if ('symfony' == $configuration->get()->getHandler()) {
-                // symfony translator implementation
-                $translator = new Translators\Symfony(
+            $translator = $configuration->get()->getHandler() === 'symfony'
+                ? new Translators\Symfony(
+                    $configuration->get(),
+                    new Adapters\LaravelAdapter,
+                    $fileSystem
+                )
+                : new Translators\Gettext(
                     $configuration->get(),
                     new Adapters\LaravelAdapter,
                     $fileSystem
                 );
-            } else {
-                // GNU/Gettext php extension
-                $translator = new Translators\Gettext(
-                    $configuration->get(),
-                    new Adapters\LaravelAdapter,
-                    $fileSystem
-                );
-            }
 
             return new LaravelGettext($translator);
-
         });
 
         include_once __DIR__ . '/Support/helpers.php';
 
         // Alias
-        $this->app->booting(function () {
-            $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-
-            $loader->alias(
-                'LaravelGettext',
-                'Xinax\LaravelGettext\Facades\LaravelGettext'
-            );
-        });
+        $this->app->alias('laravel-gettext', LaravelGettext::class);
 
         $this->registerCommands();
     }
 
     /**
-     * Register commands
+     * Register commands.
      */
     protected function registerCommands()
     {
         // Package commands
-        $this->app->bind('xinax::gettext.create', function ($app) {
+        $this->app->singleton('xinax::gettext.create', function ($app) {
             return new Commands\GettextCreate();
         });
 
-        $this->app->bind('xinax::gettext.update', function ($app) {
+        $this->app->singleton('xinax::gettext.update', function ($app) {
             return new Commands\GettextUpdate();
         });
 
@@ -108,14 +93,14 @@ class LaravelGettextServiceProvider extends ServiceProvider
     }
 
     /**
-     * Get the services
+     * Get the services.
      *
      * @return array
      */
     public function provides()
     {
         return [
-            'laravel-gettext'
+            'laravel-gettext',
         ];
     }
 }
